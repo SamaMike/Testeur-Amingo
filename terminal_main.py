@@ -11,12 +11,50 @@ import datetime
 import requests
 import py_compile
 from bs4 import BeautifulSoup
+
+from analyse import analyse
+
 lst_memo = list()
+lst_memo0 = list()
+val0 = int
+equart0 = int
+equart1 = int
+equart2 = int
+diff0 = int
+diff1 = int
+diff2 = int
+
 
 
 def aleatoire(a, b):
     return random.randint(a, b)
 
+
+def aleatoire_loto(genre):
+    while True:
+        if genre is 'Blue':
+            test = random.randint(1, 49)
+            if str(test) == '0':
+                return random.randint(1, 49)
+            else:
+                return test
+        elif genre is 'Yellow':
+            patient0 = random.randint(1, 10)
+            if str(patient0) == '0':
+                return random.randint(1, 10)
+            else:
+                return patient0
+
+def game_loto():
+    game_blue = set()
+    game_star = set()
+    while True:
+        if len(game_blue) != 5:
+            game_blue.add(aleatoire_loto('Blue'))
+        if len(game_star) != 1:
+            game_star.add(aleatoire_loto('Star'))
+        if len(game_blue) + len(game_star) == 6:
+            return list((str(game_blue), str(game_star)))
 
 def verify_data(if__list):
     if__end_char = list()
@@ -85,7 +123,6 @@ def search_game(rept, tirage_result) -> str:
         labdata.close()
         print('resultat_amingo_71 is save.')
 
-
 def amingo():
     amiLst = set()
     dictList = 0
@@ -95,7 +132,12 @@ def amingo():
         amiLst.add(Nm)
         dictList += 1
         if len(amiLst) == 7:
-            return ''.join(amiLst)
+            listgame = list()
+            for n in amiLst:
+                listgame.append(n)
+            var_amingo = ''.join(listgame)
+            amiLst.clear()
+            return var_amingo
         else:
             continue
 
@@ -108,45 +150,48 @@ def amingo():
 """
 
 
-def avanced_amingo(multiple, values):
-    _decompte = multiple
+def avanced_amingo(multiple):
     mult = int(multiple)
-    for i in range(mult - 1):
+    for i in range(mult):
         new_game = amingo()
-        if i != 1:
+        if i % 2 == 1:
             lst_memo.append(new_game)
-        if i == 1:
-            lst_memo.append(new_game)
-            print(lst_memo[-1])
-        else:
-            search_game(str(i) + new_game, values)
+        if i % 2 == 0:
+            lst_memo0.append(new_game)
+        if  i == '{}'.format(multiple):
+            results = Algo1_advanced_Amingo(lst_memo, lst_memo0)
 
-    class release_search:
-        def __init__(self):
-            pass
-
-        def run(self):
-            pass
+def Algo1_advanced_Amingo(list1, list2):
+    # Creation du dossier
+    file_equart = open('file_equart.txt', 'rt+')
+    list_zip =list((zip(list1, list2)))
+    if len(list1) == 2:
+        for x in list_zip:
+            monk = analyse.x_comp_y(int(x[-1]), int(x[0]))
+            var = str('{} ,{}: {}').format(str(x[0]), str(x[-1]),str(monk))
+    if len(list1) >= 3:
+        for x in list_zip:
+            var0 = x[0]
+            var1 = x[1]
+            for p in [var0, var1]:
+                if len(p) == 2:
+                    comp = analyse.x_comp_y(int(var0), int(var1))
+                    text = '{}, {}:{}'.format(str(var0), str(var1), str(comp))
 
 
 def adminMenu():
     # URL de la page des résultats Amigo
     url = "https://www.fdj.fr/jeux-de-tirage/amigo/resultats"
     print('Inserez le numero du tirage du jour sans espace.\n: ')
-    tirage_numbers = input()
-
+    tirage_numbers = str(input())
     # Effectuer la requête HTTP
     response = requests.get(url)
-
     soup = BeautifulSoup(response.content, 'html.body')
-
     # Extraire les numéros gagnants (exemple avec une expression XPath)
-
     id_amingo = '//*[@id="draw-result-blue-balls-{}"]'.format(tirage_numbers)
     numeros_gagnants = soup.select_one(id_amingo).text.split()
-    nb_gg = numeros_gagnants.pop()
-    print('{}'.format(nb_gg))
-    return numeros_gagnants
+    nb_gg = ''.join(numeros_gagnants)
+    return nb_gg
 
 
 def take_html_amingo():
@@ -154,9 +199,9 @@ def take_html_amingo():
     response = requests.get(url)
     return response.text
 
+
 def take_id_html_amingo(section, div, id):
     pass
-
 
 
 def save_numbers(lst):
@@ -202,29 +247,38 @@ def starter():
         if order_web == 0:
             while started is True or started == 'stat_amingo':
                 if started is True:
-                    print('Tape\n1: Get number Amingo\n2: Advanced amingo \n3: Write a sequence number\n4: Restart\n5: Quit\n')
+                    print('Tape\n'
+                          '1: Get number Amingo\n'
+                          '11 Get Aleatoire loto\n'
+                          '2: Advanced amingo \n'
+                          '22: advanced loto'
+                          '3: Write a sequence number\n'
+                          '4: Restart\n'
+                          '5: Quit\n')
                     user = input()
-                    chiffre = int()
                     if user == '1':
                         lst_amingo = amingo()
                         print('tirage {}: {}'.format('1', str(lst_amingo)))
+                    elif user == '11':
+                        pass
                     elif user == '2':
-                        user_args: str = input('Combien de fois ? \n:')
-                        lock = int((user_args))
-                        if lock <= 250:
-                            while lock != 0:
+                        user_args = int(input('Combien de fois ? \n:'))
+                        if user_args <= 250:
+                            while user_args != 0:
                                 am = amingo()
                                 save_numbers(am)
-                                lock -= 1
-                                if lock == 0:
+                                user_args -= 1
+                                if user_args == 0:
                                     text = return_last_numbers()
                                     print('last number: {}\nactual game: {}'.format(str(text), amingo()))
                                     restart()
+                    elif user == '22':
+                        pass
                     elif user == '3':
                         start01 = True
                         while start01 is True:
                             _user = input('sequences: ')
-                            while _user != '0':
+                            if _user != '0':
                                 temoin = _user
                                 if _user == "start_sequence":
                                     varset = _user.split('.')
@@ -246,11 +300,15 @@ def starter():
                                     point2 = ".."
                                     point1 = "."
                                     print('Restarting {}'.format(point1))
+                                    os.system('cls')
                                     if i % 2 == 0:
                                         os.system('cls')
                                         print('Restarting {}'.format(point2))
-                                    elif i % 2 == 1:
+                                    if i % 2 == 1:
                                         print('Restarting {}'.format(point3))
+                                        os.system('cls')
+                                    if i == vartime:
+                                        restart()
                             started = True
                     elif user == '5':
                         print('Fin du simulateur')
@@ -265,7 +323,13 @@ def starter():
                             '4 For restart a prog\n'
                             '5 For quit'.format(str(user), type(user)))
                         started = True
-
+                if started == 'stat_amingo':
+                    html_71 = take_html_amingo()
+                    with open('html_data_71.txt', 'w+') as f:
+                        f.write(html_71)
+                        requete = adminMenu()
+                        print(requete)
+                        f.close()
         else:
             pass
 
